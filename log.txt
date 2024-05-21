@@ -1,0 +1,9 @@
+2024-05-10 10:02:25,405 - root - INFO - this is info level - <module>
+2024-05-10 10:02:25,406 - root - WARNING - this is warning level - <module>
+2024-05-10 10:02:25,406 - root - ERROR - this is error level - <module>
+2024-05-10 10:02:25,406 - root - CRITICAL - this is critical level - <module>
+2024-05-10 10:02:25,406 - root - INFO - 1 can not be divided by 2 - log
+2024-05-10 10:02:25,406 - root - INFO - 3 can not be divided by 2 - log
+2024-05-10 10:02:25,406 - root - INFO - 5 can not be divided by 2 - log
+2024-05-10 10:02:25,406 - root - INFO - 7 can not be divided by 2 - log
+2024-05-10 10:02:25,406 - root - INFO - 9 can not be divided by 2 - log
