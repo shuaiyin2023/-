@@ -16,7 +16,7 @@ blue = (0, 0, 255)
 pink = (255, 192, 203)
 
 # 加载图片
-image_2 = pygame.image.load("./images/僵尸.png")
+image_2 = pygame.image.load("./images/zombie.png")
 image_2 = pygame.transform.scale(image_2, (50, 50))  # 缩放图片
 
 
@@ -48,7 +48,7 @@ def bullet_update():
 def bullet_draw():
     global bullets
     for bullet in bullets:
-        pygame.draw.circle(screen, pink, (int(bullet[0]), int(bullet[1])), 20)
+        pygame.draw.circle(screen, pink, (int(bullet[0]), int(bullet[1])), 10)
 
 
 def event_func(event_ele):
