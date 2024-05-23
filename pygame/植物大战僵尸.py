@@ -19,6 +19,7 @@ class Plants(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=pos)
         self.last_shot = pygame.time.get_ticks()
         self.shoot_delay = 1000  # 子弹发射间隔（毫秒）
+        self.base_damage = 20  # 初始伤害
 
     # 循环发射子弹
     def update(self):
@@ -34,6 +35,16 @@ class Plants(pygame.sprite.Sprite):
         for _sprite in all_plants_sprites:
             if _sprite.rect.right >= WIDTH:
                 _sprite.kill()
+
+        self.be_devoured()
+
+    # 植物是否被僵尸吃掉
+    def be_devoured(self):
+        for _sprite in all_plants_sprites:
+            for _zombie in all_zombie_sprites:
+                if pygame.sprite.collide_rect(_sprite, _zombie):
+                    _sprite.kill()
+                    # _zombie.kill()
 
 
 """ 向日葵类 """
@@ -101,7 +112,7 @@ class Bullet(pygame.sprite.Sprite):
         self.image = pygame.Surface((20, 20), pygame.SRCALPHA)  # 创建带有Alpha通道的表面对象
         pygame.draw.circle(self.image, (255, 123, 0), (10, 10), 10)  # 绘制红色圆形子弹
         self.rect = self.image.get_rect(center=pos)
-        self.speed = 5
+        self.speed = 2
 
     # 子弹移动及是否超出范围
     def update(self):
@@ -120,11 +131,29 @@ class Zombies(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect(center=pos)
         self.speed = 1
+        self.blood_volume = 100
 
     # 僵尸移动
     def update(self):
         self.rect.x -= self.speed
         if self.rect.left < 0:
+            self.kill()
+
+        self.is_attack()
+
+    # 检测僵尸是否被攻击
+    def is_attack(self):
+        for _bullet in bullets:
+            for _zombie in all_zombie_sprites:
+                if pygame.sprite.collide_rect(_bullet, _zombie):
+                    _bullet.kill()
+                    # 因为在主循环中点击鼠标时，初始化了plant对象，属于全局可见，所以可以直接访问此属性plant.base_damage
+                    self.take_damage(plant.base_damage)
+
+    # 根据血量进行处理
+    def take_damage(self, damage):
+        self.blood_volume -= damage
+        if self.blood_volume <= 0:
             self.kill()
 
 
@@ -142,8 +171,6 @@ while running:
             running = False
         elif event.type == MOUSEBUTTONDOWN:
             if event.button == 1:
-                # plant = Plant(event.pos)
-                # plant = Peashooter(event.pos)
                 plant = SunFlowers(event.pos)
                 plant.deal_image()  # 调用 deal_image() 方法来切分图像
                 all_plants_sprites.add(plant)
