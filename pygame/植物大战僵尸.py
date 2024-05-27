@@ -20,13 +20,25 @@ class Plants(pygame.sprite.Sprite):
         self.last_shot = pygame.time.get_ticks()
         self.shoot_delay = 1000  # 子弹发射间隔（毫秒）
         self.base_damage = 20  # 初始伤害
+        self.damage = self.get_damage()
 
-    # 循环发射子弹
+    def get_damage(self):
+        if isinstance(self, SunFlowers):
+            return 20
+        else:
+            return 100
+
     def update(self):
+        """
+        循环发射子弹
+        :return:
+        """
+        print("当前植物的伤害: ", self.damage)
+        print("当前植物的属性: ", self)
         now = pygame.time.get_ticks()
         if now - self.last_shot > self.shoot_delay:
             self.last_shot = now
-            bullet = Bullet(self.rect.center)
+            bullet = Bullet(self.rect.center, self.damage)
             all_plants_sprites.add(bullet)  # 将循环生成的子弹添加到植物精灵组中是为了将与植物相关的子弹循环生成，实现循环发射的效果
             bullets.add(bullet)  # 这里将子弹加入子弹精灵组中是为了在子弹精灵组中专门处理子弹的移动、碰撞等逻辑
 
@@ -36,15 +48,18 @@ class Plants(pygame.sprite.Sprite):
             if _sprite.rect.right >= WIDTH:
                 _sprite.kill()
 
-        self.be_devoured()
+        self._be_devoured()
 
-    # 植物是否被僵尸吃掉
-    def be_devoured(self):
+    def _be_devoured(self):
+        """
+        植物是否被僵尸吃掉
+        :return:
+        """
         for _sprite in all_plants_sprites:
             for _zombie in all_zombie_sprites:
                 if pygame.sprite.collide_rect(_sprite, _zombie):
                     _sprite.kill()
-                    # _zombie.kill()
+                    # _zombie._take_damage(_sprite.damage)
 
 
 """ 向日葵类 """
@@ -101,18 +116,20 @@ class Peashooter(Plants):
         super().__init__(pos)
         self.image = pygame.image.load('./images/Peashooter.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (50, 50))
+        self.base_damage = 100  # 初始伤害
 
 
 """ 子弹类 """
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, pos):
+    def __init__(self, pos, damage):
         super().__init__()
         self.image = pygame.Surface((20, 20), pygame.SRCALPHA)  # 创建带有Alpha通道的表面对象
         pygame.draw.circle(self.image, (255, 123, 0), (10, 10), 10)  # 绘制红色圆形子弹
         self.rect = self.image.get_rect(center=pos)
         self.speed = 2
+        self.bullet_damage = damage
 
     # 子弹移动及是否超出范围
     def update(self):
@@ -125,6 +142,7 @@ class Bullet(pygame.sprite.Sprite):
 
 
 class Zombies(pygame.sprite.Sprite):
+
     def __init__(self, pos):
         super().__init__()
         self.image = pygame.image.load('./images/zombie.png').convert_alpha()  # 僵尸
@@ -148,10 +166,10 @@ class Zombies(pygame.sprite.Sprite):
                 if pygame.sprite.collide_rect(_bullet, _zombie):
                     _bullet.kill()
                     # 因为在主循环中点击鼠标时，初始化了plant对象，属于全局可见，所以可以直接访问此属性plant.base_damage
-                    self.take_damage(plant.base_damage)
+                    self._take_damage(_bullet.bullet_damage)
 
     # 根据血量进行处理
-    def take_damage(self, damage):
+    def _take_damage(self, damage):
         self.blood_volume -= damage
         if self.blood_volume <= 0:
             self.kill()
@@ -163,6 +181,8 @@ bullets = pygame.sprite.Group()  # 所有植物类子弹精灵
 
 clock = pygame.time.Clock()
 running = True
+
+
 while running:
     clock.tick(60)
 
@@ -174,7 +194,10 @@ while running:
                 plant = SunFlowers(event.pos)
                 plant.deal_image()  # 调用 deal_image() 方法来切分图像
                 all_plants_sprites.add(plant)
-            if event.button == 3:
+            elif event.button == 3:
+                plant = Peashooter(event.pos)
+                all_plants_sprites.add(plant)
+            else:
                 zombie = Zombies(event.pos)
                 all_zombie_sprites.add(zombie)
 
@@ -190,10 +213,6 @@ while running:
     all_plants_sprites.update()  # 将精灵组中的所有精灵对象的状态和属性及时更新
     all_zombie_sprites.update()  # 将精灵组中的所有精灵对象的状态和属性及时更新
 
-    print("僵尸: \n", all_zombie_sprites, len(all_zombie_sprites))
-    print("植物: \n", all_plants_sprites, len(all_plants_sprites))
-    print("子弹: \n", bullets, len(bullets))
-
     screen.fill((0, 0, 0))
     all_plants_sprites.draw(screen)  # 将所有精灵组中的精灵对象绘制到屏幕上
     all_zombie_sprites.draw(screen)  # 将所有精灵组中的精灵对象绘制到屏幕上
@@ -202,3 +221,5 @@ while running:
 
 pygame.quit()
 sys.exit()
+
+
