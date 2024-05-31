@@ -8,6 +8,9 @@ WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("植物大战僵尸")
 
+# 游戏背景
+background = pygame.image.load("./images/grassland.png").convert()
+
 """ 植物类 """
 
 
@@ -15,7 +18,7 @@ class Plants(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
         self.image = pygame.Surface((50, 50))
-        self.image.fill((0, 255, 0))  # 绿色
+        # self.image.fill((0, 255, 0))  # 绿色
         self.rect = self.image.get_rect(center=pos)
         self.last_shot = pygame.time.get_ticks()
         self.shoot_delay = 1000  # 子弹发射间隔（毫秒）
@@ -33,8 +36,6 @@ class Plants(pygame.sprite.Sprite):
         循环发射子弹
         :return:
         """
-        print("当前植物的伤害: ", self.damage)
-        print("当前植物的属性: ", self)
         now = pygame.time.get_ticks()
         if now - self.last_shot > self.shoot_delay:
             self.last_shot = now
@@ -125,8 +126,9 @@ class Peashooter(Plants):
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, pos, damage):
         super().__init__()
-        self.image = pygame.Surface((20, 20), pygame.SRCALPHA)  # 创建带有Alpha通道的表面对象
-        pygame.draw.circle(self.image, (255, 123, 0), (10, 10), 10)  # 绘制红色圆形子弹
+        # self.image = pygame.Surface((20, 20), pygame.SRCALPHA)  # 创建带有Alpha通道的表面对象
+        # pygame.draw.circle(self.image, (255, 123, 0), (10, 10), 10)  # 绘制红色圆形子弹
+        self.image = pygame.image.load("./images/peabullet.png").convert_alpha()
         self.rect = self.image.get_rect(center=pos)
         self.speed = 2
         self.bullet_damage = damage
@@ -210,16 +212,23 @@ while running:
     for bullet in bullets:
         if bullet.rect.right <= 0:
             bullet.kill()
+
     all_plants_sprites.update()  # 将精灵组中的所有精灵对象的状态和属性及时更新
     all_zombie_sprites.update()  # 将精灵组中的所有精灵对象的状态和属性及时更新
+    bullets.update()  # 将精灵组中的所有精灵对象的状态和属性及时更新
 
-    screen.fill((0, 0, 0))
+    screen.blit(background, (0, 0))
     all_plants_sprites.draw(screen)  # 将所有精灵组中的精灵对象绘制到屏幕上
     all_zombie_sprites.draw(screen)  # 将所有精灵组中的精灵对象绘制到屏幕上
+    bullets.draw(screen)
 
     pygame.display.flip()
+    print(all_plants_sprites.sprites)
 
 pygame.quit()
 sys.exit()
+
+
+
 
 
