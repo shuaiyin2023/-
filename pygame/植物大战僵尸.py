@@ -87,7 +87,14 @@ class Plants(pygame.sprite.Sprite):
             for _zombie in all_zombie_sprites:
                 if pygame.sprite.collide_rect(_sprite, _zombie):
                     _sprite.kill()
+                    self.replant_plant()
                     # _zombie._take_damage(_sprite.damage)
+
+    def replant_plant(self):
+        """ 当格子中的植物被僵尸吃掉时，允许重新种植 """
+        for row in grid:
+            for column in row:
+                column.plant = None
 
 
 class SunFlowers(Plants):
@@ -227,6 +234,7 @@ while running:
             elif event.button == 3:
                 if 0 <= cell_x < grid_column_count and 0 <= cell_y < grid_row_count:
                     if grid[cell_x][cell_y].plant is None:  # 检查格子是否为空
+                        # 植物是否种植在格子中心
                         plant_pos = ((cell_x * cell_size) + cell_size // 2, (cell_y * cell_size) + cell_size // 2)
                         new_plant = Peashooter(plant_pos)
                         grid[cell_x][cell_y].plant = new_plant
