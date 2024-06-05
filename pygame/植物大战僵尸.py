@@ -4,24 +4,51 @@ from pygame.locals import *
 
 pygame.init()
 
-WIDTH, HEIGHT = 800, 600
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+WIDTH, HEIGHT = 800, 500
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SRCALPHA)
+window_size = screen.get_size()
 pygame.display.set_caption("植物大战僵尸")
 
 # 游戏背景
 background = pygame.image.load("./images/grassland.png").convert()
+# 缩放背景图片以适应窗口大小
+scaled_background = pygame.transform.scale(background, window_size)
 
-""" 植物类 """
+# 设置线条透明度
+alpha_value = 50  # 0为完全透明，255为完全不透明
+# 颜色定义
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GREEN = (0, 255, 0)
+
+
+class GridCell:
+    """ 格子类 """
+
+    def __init__(self):
+        self.plant = None
+        self.position = None
+
+
+# 格子大小
+cell_size = HEIGHT // 5
+
+# 创建格子的行列数
+grid_row_count = HEIGHT // cell_size
+grid_column_count = 10
+grid = [[GridCell() for _ in range(grid_row_count)] for _ in range(grid_column_count)]
 
 
 class Plants(pygame.sprite.Sprite):
+    """ 植物类 """
+
     def __init__(self, pos):
         super().__init__()
         self.image = pygame.Surface((50, 50))
         # self.image.fill((0, 255, 0))  # 绿色
         self.rect = self.image.get_rect(center=pos)
         self.last_shot = pygame.time.get_ticks()
-        self.shoot_delay = 1000  # 子弹发射间隔（毫秒）
+        self.shoot_delay = 1500  # 子弹发射间隔（毫秒）
         self.base_damage = 20  # 初始伤害
         self.damage = self.get_damage()
 
@@ -63,10 +90,8 @@ class Plants(pygame.sprite.Sprite):
                     # _zombie._take_damage(_sprite.damage)
 
 
-""" 向日葵类 """
-
-
 class SunFlowers(Plants):
+    """ 向日葵类 """
 
     def __init__(self, pos):
         super().__init__(pos)
@@ -104,14 +129,12 @@ class SunFlowers(Plants):
         # 在屏幕上绘制当前帧的小图
         screen.blit(self.image, self.rect)
 
-    # def update(self):
-    #     pass
-
-
-""" 豌豆射手类 """
+    def update(self):
+        pass
 
 
 class Peashooter(Plants):
+    """ 豌豆射手类 """
 
     def __init__(self, pos):
         super().__init__(pos)
@@ -120,17 +143,16 @@ class Peashooter(Plants):
         self.base_damage = 100  # 初始伤害
 
 
-""" 子弹类 """
-
-
 class Bullet(pygame.sprite.Sprite):
+    """ 子弹类 """
+
     def __init__(self, pos, damage):
         super().__init__()
         # self.image = pygame.Surface((20, 20), pygame.SRCALPHA)  # 创建带有Alpha通道的表面对象
         # pygame.draw.circle(self.image, (255, 123, 0), (10, 10), 10)  # 绘制红色圆形子弹
         self.image = pygame.image.load("./images/peabullet.png").convert_alpha()
         self.rect = self.image.get_rect(center=pos)
-        self.speed = 2
+        self.speed = 1
         self.bullet_damage = damage
 
     # 子弹移动及是否超出范围
@@ -140,10 +162,8 @@ class Bullet(pygame.sprite.Sprite):
             self.kill()
 
 
-""" 僵尸类 """
-
-
 class Zombies(pygame.sprite.Sprite):
+    """ 僵尸类 """
 
     def __init__(self, pos):
         super().__init__()
@@ -184,24 +204,51 @@ bullets = pygame.sprite.Group()  # 所有植物类子弹精灵
 clock = pygame.time.Clock()
 running = True
 
-
 while running:
     clock.tick(60)
-
+    # break
     for event in pygame.event.get():
         if event.type == QUIT:
             running = False
-        elif event.type == MOUSEBUTTONDOWN:
+        if event.type == MOUSEBUTTONDOWN:
+            x, y = event.pos
+            cell_x = x // cell_size
+            cell_y = y // cell_size
             if event.button == 1:
-                plant = SunFlowers(event.pos)
-                plant.deal_image()  # 调用 deal_image() 方法来切分图像
-                all_plants_sprites.add(plant)
+                if 0 <= cell_x < grid_column_count and 0 <= cell_y < grid_row_count:
+                    if grid[cell_x][cell_y].plant is None:  # 检查格子是否为空
+                        # 计算植物位置为当前格子的中心位置
+                        plant_pos = ((cell_x * cell_size) + cell_size // 2, (cell_y * cell_size) + cell_size // 2)
+                        new_plant = SunFlowers(plant_pos)
+                        grid[cell_x][cell_y].plant = new_plant
+                        all_plants_sprites.add(new_plant)
+                        new_plant.deal_image()
+                        new_plant.dynamic_effect()
             elif event.button == 3:
-                plant = Peashooter(event.pos)
-                all_plants_sprites.add(plant)
+                if 0 <= cell_x < grid_column_count and 0 <= cell_y < grid_row_count:
+                    if grid[cell_x][cell_y].plant is None:  # 检查格子是否为空
+                        plant_pos = ((cell_x * cell_size) + cell_size // 2, (cell_y * cell_size) + cell_size // 2)
+                        new_plant = Peashooter(plant_pos)
+                        grid[cell_x][cell_y].plant = new_plant
+                        all_plants_sprites.add(new_plant)
             else:
                 zombie = Zombies(event.pos)
                 all_zombie_sprites.add(zombie)
+
+    screen.fill(BLACK)
+    for x in range(0, WIDTH, cell_size):
+        pygame.draw.line(screen, GREEN, (x, 0), (x, HEIGHT))  # 绘制垂直分割线
+    for y in range(0, HEIGHT, cell_size):
+        pygame.draw.line(screen, GREEN, (0, y), (WIDTH, y))  # 绘制水平分割线
+    # for x in range(grid_column_count):
+    #     for y in range(grid_row_count):
+    #         # rect = pygame.Rect(x * cell_size, y * cell_size, cell_size, cell_size)
+    #         # pygame.draw.rect(window, GREEN if grid[x][y].plant else WHITE, rect)
+    #         if isinstance(grid[x][y].plant, SunFlowers):
+    #             # screen.blit(image, (x * cell_size, y * cell_size))
+    #             # all_plants_sprites.update()
+    #             grid[x][y].plant.deal_image()
+    #             grid[x][y].plant.dynamic_effect()
 
     # 这个for循环用于展示向日葵的动态效果
     for sprite in all_plants_sprites:
@@ -217,18 +264,14 @@ while running:
     all_zombie_sprites.update()  # 将精灵组中的所有精灵对象的状态和属性及时更新
     bullets.update()  # 将精灵组中的所有精灵对象的状态和属性及时更新
 
-    screen.blit(background, (0, 0))
+    # screen.blit(scaled_background, (0, 0))
+    # screen.fill(BLACK)
     all_plants_sprites.draw(screen)  # 将所有精灵组中的精灵对象绘制到屏幕上
     all_zombie_sprites.draw(screen)  # 将所有精灵组中的精灵对象绘制到屏幕上
     bullets.draw(screen)
 
     pygame.display.flip()
-    print(all_plants_sprites.sprites)
+    # print(all_plants_sprites.sprites)
 
 pygame.quit()
 sys.exit()
-
-
-
-
-
