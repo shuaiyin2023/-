@@ -87,14 +87,15 @@ class Plants(pygame.sprite.Sprite):
             for _zombie in all_zombie_sprites:
                 if pygame.sprite.collide_rect(_sprite, _zombie):
                     _sprite.kill()
-                    self.replant_plant()
+
+                    # 获取被僵尸吃掉的当前植物的位置
+                    pos_x, pos_y = _sprite.rect[0] // cell_size, _sprite.rect[1] // cell_size
+                    self.replant_plant(pos_x, pos_y)
                     # _zombie._take_damage(_sprite.damage)
 
-    def replant_plant(self):
+    def replant_plant(self, pos_x, pos_y):
         """ 当格子中的植物被僵尸吃掉时，允许重新种植 """
-        for row in grid:
-            for column in row:
-                column.plant = None
+        grid[pos_x][pos_y].plant = None
 
 
 class SunFlowers(Plants):
