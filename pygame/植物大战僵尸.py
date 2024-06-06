@@ -49,7 +49,7 @@ class Plants(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=pos)
         self.last_shot = pygame.time.get_ticks()
         self.shoot_delay = 1500  # 子弹发射间隔（毫秒）
-        self.base_damage = 20  # 初始伤害
+        # self.base_damage = 20  # 初始伤害
         self.damage = self.get_damage()
 
     def get_damage(self):
@@ -113,6 +113,7 @@ class SunFlowers(Plants):
         self.image_timer = 0  # 控制时间的初始值
         self.image_delay = 10  # 图像切换延迟
         self.current_frame = 0  # 当前图片
+        self.base_damage = 20  # 初始伤害
 
     # 图片的切割处理
     def deal_image(self):
@@ -138,7 +139,10 @@ class SunFlowers(Plants):
         screen.blit(self.image, self.rect)
 
     def update(self):
-        pass
+        # 这个for循环用于展示向日葵的动态效果
+        for sprite in all_plants_sprites:
+            if isinstance(sprite, SunFlowers):
+                sprite.dynamic_effect()
 
 
 class Peashooter(Plants):
@@ -205,12 +209,35 @@ class Zombies(pygame.sprite.Sprite):
             self.kill()
 
 
+def draw_lines():
+    """ 此函数用于给所有方格之间加上分割线 """
+    for grid_x in range(0, WIDTH, cell_size):
+        pygame.draw.line(screen, GREEN, (grid_x, 0), (grid_x, HEIGHT))  # 绘制垂直分割线
+    for grid_y in range(0, HEIGHT, cell_size):
+        pygame.draw.line(screen, GREEN, (0, grid_y), (WIDTH, grid_y))  # 绘制水平分割线
+
+
+def call_all_sprites_update_method():
+    """ 此函数用于调用所有精灵组的update方法 """
+    all_plants_sprites.update()  # 将精灵组中的所有精灵对象的状态和属性及时更新
+    all_zombie_sprites.update()  # 将精灵组中的所有精灵对象的状态和属性及时更新
+    bullets.update()  # 将精灵组中的所有精灵对象的状态和属性及时更新
+
+
+def call_all_sprites_draw_method():
+    """ 此函数用于调用所有精灵组的draw方法 """
+    all_plants_sprites.draw(screen)  # 将所有精灵组中的精灵对象绘制到屏幕上
+    all_zombie_sprites.draw(screen)  # 将所有精灵组中的精灵对象绘制到屏幕上
+    bullets.draw(screen)
+
+
 all_plants_sprites = pygame.sprite.Group()  # 所有植物类精灵
 all_zombie_sprites = pygame.sprite.Group()  # 所有僵尸类精灵
 bullets = pygame.sprite.Group()  # 所有植物类子弹精灵
 
 clock = pygame.time.Clock()
 running = True
+
 
 while running:
     clock.tick(60)
@@ -245,42 +272,18 @@ while running:
                 all_zombie_sprites.add(zombie)
 
     screen.fill(BLACK)
-    for x in range(0, WIDTH, cell_size):
-        pygame.draw.line(screen, GREEN, (x, 0), (x, HEIGHT))  # 绘制垂直分割线
-    for y in range(0, HEIGHT, cell_size):
-        pygame.draw.line(screen, GREEN, (0, y), (WIDTH, y))  # 绘制水平分割线
-    # for x in range(grid_column_count):
-    #     for y in range(grid_row_count):
-    #         # rect = pygame.Rect(x * cell_size, y * cell_size, cell_size, cell_size)
-    #         # pygame.draw.rect(window, GREEN if grid[x][y].plant else WHITE, rect)
-    #         if isinstance(grid[x][y].plant, SunFlowers):
-    #             # screen.blit(image, (x * cell_size, y * cell_size))
-    #             # all_plants_sprites.update()
-    #             grid[x][y].plant.deal_image()
-    #             grid[x][y].plant.dynamic_effect()
 
-    # 这个for循环用于展示向日葵的动态效果
-    for sprite in all_plants_sprites:
-        if isinstance(sprite, SunFlowers):
-            sprite.dynamic_effect()
+    # 绘制分割线
+    draw_lines()
 
-    # 子弹超出边界则将其销毁
-    for bullet in bullets:
-        if bullet.rect.right <= 0:
-            bullet.kill()
-
-    all_plants_sprites.update()  # 将精灵组中的所有精灵对象的状态和属性及时更新
-    all_zombie_sprites.update()  # 将精灵组中的所有精灵对象的状态和属性及时更新
-    bullets.update()  # 将精灵组中的所有精灵对象的状态和属性及时更新
+    # 调用所有精灵组的update方法进行更新
+    call_all_sprites_update_method()
+    # 调用所有精灵组的draw方法
+    call_all_sprites_draw_method()
 
     # screen.blit(scaled_background, (0, 0))
-    # screen.fill(BLACK)
-    all_plants_sprites.draw(screen)  # 将所有精灵组中的精灵对象绘制到屏幕上
-    all_zombie_sprites.draw(screen)  # 将所有精灵组中的精灵对象绘制到屏幕上
-    bullets.draw(screen)
 
     pygame.display.flip()
-    # print(all_plants_sprites.sprites)
 
 pygame.quit()
 sys.exit()
