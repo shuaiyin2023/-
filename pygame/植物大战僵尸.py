@@ -93,7 +93,8 @@ class Plants(pygame.sprite.Sprite):
                     self.replant_plant(pos_x, pos_y)
                     # _zombie._take_damage(_sprite.damage)
 
-    def replant_plant(self, pos_x, pos_y):
+    @staticmethod  # 将此方法定义为staticmethod静态方法，因为此方法中并不需要使用类变量和实例变量，
+    def replant_plant(pos_x, pos_y):
         """ 当格子中的植物被僵尸吃掉时，允许重新种植 """
         grid[pos_x][pos_y].plant = None
 
