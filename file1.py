@@ -713,20 +713,170 @@
 #
 #
 #
-
-num = [3, 2, 4]
-targe = 6
+import json
 
 
-def mysum(nums, target):
-    for i in range(len(nums)):
-        result = target - nums[i]
-        if result not in nums:
-            continue
-        if i == nums.index(result):
-            continue
-        else:
-            return [i, nums.index(result)]
+# num = [3, 2, 4]
+# targe = 6
+#
+#
+# def mysum(nums, target):
+#     for i in range(len(nums)):
+#         result = target - nums[i]
+#         if result not in nums:
+#             continue
+#         if i == nums.index(result):
+#             continue
+#         else:
+#             return [i, nums.index(result)]
+#
+#
+# print(mysum(num, targe))
 
 
-print(mysum(num, targe))
+# file_path = r"D:\Company-yin\Files\mysql转oracle\test20240617\归档库sql.txt"
+# with open(file_path, "r", encoding="utf-8") as f:
+#     sql_text = json.load(f)
+#
+# history_file_path = r"D:\Company-yin\Files\mysql转oracle\test20240617\历史库sql.txt"
+# with open(history_file_path, "r", encoding="utf-8") as f:
+#     histroy_sql_text = json.load(f)
+#
+# print("读取到的归档库文件: \n", sql_text)
+# print("读取到的历史库文件: \n", histroy_sql_text)
+#
+# print("=================================\n")
+#
+# print(sql_text["job"]["content"][0]["writer"]["parameter"]["column"])
+#
+# sql_list = [
+#               "business_date",
+#               "company_id",
+#               "fund_id",
+#               "asset_id",
+#               "combi_id",
+#               "market_no",
+#               "report_code",
+#               "inter_code",
+#               "invest_type",
+#               "position_type",
+#               "bind_seat",
+#               "stockholder_id",
+#               "begin_amount",
+#               "current_amount",
+#               "lastday_left_amount",
+#               "frozen_amount",
+#               "unfrozen_amount",
+#               "last_frozen_amount",
+#               "close_enable_amount",
+#               "lastday_enable_amount",
+#               "prebuy_amount",
+#               "presale_amount",
+#               "buy_amount",
+#               "sale_amount",
+#               "buy_fee",
+#               "sale_fee",
+#               "buy_balance",
+#               "sale_balance",
+#               "total_fee",
+#               "begin_original_real_cost",
+#               "begin_original_cost",
+#               "begin_original_real_profit",
+#               "begin_original_profit",
+#               "original_real_cost",
+#               "original_cost",
+#               "original_real_profit",
+#               "original_profit",
+#               "pre_buy_balance",
+#               "pre_sale_balance",
+#               "currentcovered_amount",
+#               "open_pending_fee",
+#               "option_occupy_deposit",
+#               "pending_occupy_deposit",
+#               "combi_occupy_margin"
+#             ]
+
+# sql_text["job"]["content"][0]["writer"]["parameter"]["column"] = sql_list  # 归档库
+# histroy_sql_text["job"]["content"][0]["writer"]["parameter"]["column"] = sql_list  # 历史库
+
+# file1_path = r"D:\Company-yin\Files\mysql转oracle\归档数据\归档_hisjy_tadvisestock.txt"
+# file2_path = r"D:\Company-yin\Files\mysql转oracle\历史数据\历史_hisjy_tadvisestock.txt"
+
+# with open(file1_path, "r", encoding="utf-8") as f:
+#     sql_text = json.load(f)
+#
+# with open(file2_path, "r", encoding="utf-8") as f:
+#     histroy_sql_text = json.load(f)
+#
+#
+# print(sql_text)
+# print(histroy_sql_text)
+
+# sql_text["job"]["content"][0]["writer"]["parameter"]["column"] = sql_list  # 归档库
+# histroy_sql_text["job"]["content"][0]["writer"]["parameter"]["column"] = sql_list  # 历史库
+
+
+# write_path = f"D:\Company-yin\Files\mysql转oracle\归档_hisjy_tadvisestock.txt"
+# with open(write_path, "w", encoding="utf-8") as file:
+#     file.write(json.dumps(sql_text))
+
+# history_write_path = r"D:\Company-yin\Files\mysql转oracle\历史_hisjy_toptionunitstockbackup.txt"
+# with open(history_write_path, "w", encoding="utf-8") as his_file:
+#     his_file.write(json.dumps(histroy_sql_text))
+
+
+class Animal:
+    def __init__(self):
+        print("这是父类的初始化方法")
+
+    def speak(self):
+        print("动物发出叫声")
+
+
+class Dog(Animal):
+    def __init__(self):
+        print("这是Dog类的初始化方法")
+        super().__init__()
+
+    def speak(self):
+        super().speak()  # 调用父类的speak()方法
+        print("汪汪汪")
+
+
+class Cat(Animal):
+    def __init__(self):
+        print("这是Cat类的初始化方法")
+
+    def speak(self):
+        super().speak()  # 调用父类的speak()方法
+        print("喵喵喵")
+
+
+dog = Dog()
+dog.speak()  # 输出：动物发出叫声 汪汪汪
+
+cat = Cat()
+cat.speak()  # 输出：动物发出叫声 喵喵喵
+
+def bubble_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        # 标记是否发生交换
+        swapped = False
+        for j in range(0, n-i-1):
+            if arr[j] > arr[j+1]:
+                # 交换元素
+                arr[j], arr[j+1] = arr[j+1], arr[j]
+                swapped = True
+        # 如果没有发生交换，说明数组已经有序，提前退出
+        if not swapped:
+            break
+    return arr
+
+# 示例用法
+if __name__ == "__main__":
+    arr = [64, 34, 25, 12, 22, 11, 90]
+    print("排序前的数组:", arr)
+    sorted_arr = bubble_sort(arr)
+    print("排序后的数组:", sorted_arr)
+
